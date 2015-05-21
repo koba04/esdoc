@@ -1,5 +1,5 @@
 node_modules
-out
+doc/out
 npm-debug.log
 /coverage
 /_temp
