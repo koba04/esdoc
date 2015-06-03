@@ -131,9 +131,22 @@ var ClassDoc = (function (_AbstractDoc) {
       }
 
       var node = this._node;
+      var longname = undefined;
       if (node.superClass) {
-        var longname = this._resolveLongname(node.superClass.name);
-        this._value['extends'] = [longname];
+        switch (node.superClass.type) {
+          case 'Identifier':
+            longname = this._resolveLongname(node.superClass.name);
+            this._value['extends'] = [longname];
+            break;
+          case 'MemberExpression':
+            var fullIdentifier = this._flattenMemberExpression(node.superClass);
+            var rootIdentifier = fullIdentifier.split('.')[0];
+            var rootLongname = this._resolveLongname(rootIdentifier);
+            var filePath = rootLongname.replace(/~.*/, '');
+            longname = '' + filePath + '~' + fullIdentifier;
+            this._value['extends'] = [longname];
+            break;
+        }
       }
     }
   }, {

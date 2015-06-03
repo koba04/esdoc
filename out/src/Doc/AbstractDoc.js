@@ -941,13 +941,16 @@ var AbstractDoc = (function () {
      */
     value: function _resolveLongname(name) {
       var importPath = _UtilASTUtilJs2['default'].findPathInImportDeclaration(this._ast, name);
-      if (importPath) {
+      if (!importPath) return name;
+
+      if (importPath.charAt(0) === '.' || importPath.charAt(0) === '/') {
         var resolvedPath = this._pathResolver.resolve(importPath);
         var longname = '' + resolvedPath + '~' + name;
         return longname;
+      } else {
+        var longname = '' + importPath + '~' + name;
+        return longname;
       }
-
-      return name;
     }
   }, {
     key: '_flattenMemberExpression',

@@ -10,7 +10,7 @@ describe('Identifiers:', function () {
   it('has class summary.', function () {
     (0, _utilJs.find)(doc, '[data-ice="classSummary"]', function (doc) {
       _utilJs.assert.includes(doc, '[data-ice="target"]:nth-of-type(4)', 'public MyClass1 this class was deprecated. use MyClass1Ex instead of this class. this class is experimental. this class is dangerous. this is MyClass1 desc.');
-      _utilJs.assert.includes(doc, '[data-ice="target"]:nth-of-type(13)', 'public SuperMyClass1 this is SuperMyClass1.');
+      _utilJs.assert.includes(doc, '[data-ice="target"]:nth-of-type(14)', 'public SuperMyClass1 this is SuperMyClass1.');
     });
   });
 

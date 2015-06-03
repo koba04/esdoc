@@ -13,6 +13,6 @@ describe('Index:', function () {
 
   /** @test {IndexDocBuilder#_buildIndexDoc} */
   it('has coverage badge', function () {
-    _utilJs.assert.includes(doc, '.esdoc-coverage .esdoc-coverage-ratio', '81%');
+    _utilJs.assert.includes(doc, '.esdoc-coverage .esdoc-coverage-ratio', '79%');
   });
 });

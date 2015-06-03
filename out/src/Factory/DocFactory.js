@@ -84,6 +84,8 @@ var DocFactory = (function () {
     this._results = [];
     this._processedClassNodes = [];
 
+    this._joinSeparatedExport();
+
     // file doc
     var doc = new _DocFileDocJs2['default'](ast, ast, pathResolver, []);
     this._results.push(doc.value);
@@ -105,6 +107,81 @@ var DocFactory = (function () {
      */
     get: function () {
       return [].concat(_toConsumableArray(this._results));
+    }
+  }, {
+    key: '_joinSeparatedExport',
+
+    /**
+     * join separated export declaration in AST internal.
+     *
+     * ```javascript
+     * class Foo {}
+     *
+     * export default Foo;
+     * ```
+     * ↓
+     * ```javascript
+     * export default class Foo {}
+     * ```
+     *
+     * @private
+     */
+    value: function _joinSeparatedExport() {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this._ast.body[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var node1 = _step.value;
+
+          if (!['ExportDefaultDeclaration', 'ExportNamedDeclaration'].includes(node1.type)) continue;
+
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = this._ast.body[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var node2 = _step2.value;
+
+              if (!node2.id) continue;
+              if (node2.id.type !== 'Identifier') continue;
+              if (node2.id.name !== node1.declaration.name) continue;
+
+              node1.declaration = this._copy(node2);
+              node2.type = 'Identifier'; // to ignore node2
+              break;
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2['return']) {
+                _iterator2['return']();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator['return']) {
+            _iterator['return']();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
     }
   }, {
     key: 'push',
@@ -168,13 +245,13 @@ var DocFactory = (function () {
       // hack: leadingComment of MethodDefinition with Literal is not valid by espree(v2.0.2)
       if (node.type === 'MethodDefinition' && node.key.type === 'Literal') {
         var line = node.loc.start.line - 1;
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
 
         try {
-          for (var _iterator = (this._ast.comments || [])[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var comment = _step.value;
+          for (var _iterator3 = (this._ast.comments || [])[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var comment = _step3.value;
 
             if (comment.loc.end.line === line) {
               comments = [comment];
@@ -182,16 +259,16 @@ var DocFactory = (function () {
             }
           }
         } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator['return']) {
-              _iterator['return']();
+            if (!_iteratorNormalCompletion3 && _iterator3['return']) {
+              _iterator3['return']();
             }
           } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
+            if (_didIteratorError3) {
+              throw _iteratorError3;
             }
           }
         }
@@ -199,27 +276,27 @@ var DocFactory = (function () {
 
       if (comments && comments.length) {
         var temp = [];
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
+        var _iteratorNormalCompletion4 = true;
+        var _didIteratorError4 = false;
+        var _iteratorError4 = undefined;
 
         try {
-          for (var _iterator2 = comments[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var comment = _step2.value;
+          for (var _iterator4 = comments[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+            var comment = _step4.value;
 
             if (_ParserCommentParserJs2['default'].isESDoc(comment)) temp.push(comment);
           }
         } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
+          _didIteratorError4 = true;
+          _iteratorError4 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-              _iterator2['return']();
+            if (!_iteratorNormalCompletion4 && _iterator4['return']) {
+              _iterator4['return']();
             }
           } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
+            if (_didIteratorError4) {
+              throw _iteratorError4;
             }
           }
         }
@@ -235,13 +312,13 @@ var DocFactory = (function () {
 
       var results = [];
       var lastComment = comments[comments.length - 1];
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
+      var _iteratorNormalCompletion5 = true;
+      var _didIteratorError5 = false;
+      var _iteratorError5 = undefined;
 
       try {
-        for (var _iterator3 = comments[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var comment = _step3.value;
+        for (var _iterator5 = comments[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var comment = _step5.value;
 
           var tags = _ParserCommentParserJs2['default'].parse(comment);
 
@@ -257,16 +334,16 @@ var DocFactory = (function () {
           if (doc) results.push(doc.value);
         }
       } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-            _iterator3['return']();
+          if (!_iteratorNormalCompletion5 && _iterator5['return']) {
+            _iterator5['return']();
           }
         } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
+          if (_didIteratorError5) {
+            throw _iteratorError5;
           }
         }
       }
@@ -331,13 +408,13 @@ var DocFactory = (function () {
      */
     value: function _decideType(tags, node) {
       var type = null;
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
+      var _iteratorNormalCompletion6 = true;
+      var _didIteratorError6 = false;
+      var _iteratorError6 = undefined;
 
       try {
-        for (var _iterator4 = tags[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var tag = _step4.value;
+        for (var _iterator6 = tags[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+          var tag = _step6.value;
 
           var tagName = tag.tagName;
           switch (tagName) {
@@ -358,16 +435,16 @@ var DocFactory = (function () {
           }
         }
       } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-            _iterator4['return']();
+          if (!_iteratorNormalCompletion6 && _iterator6['return']) {
+            _iterator6['return']();
           }
         } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
+          if (_didIteratorError6) {
+            throw _iteratorError6;
           }
         }
       }
@@ -617,27 +694,27 @@ var DocFactory = (function () {
         node = parentNode;
       }
 
-      var _iteratorNormalCompletion5 = true;
-      var _didIteratorError5 = false;
-      var _iteratorError5 = undefined;
+      var _iteratorNormalCompletion7 = true;
+      var _didIteratorError7 = false;
+      var _iteratorError7 = undefined;
 
       try {
-        for (var _iterator5 = body[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-          var _node = _step5.value;
+        for (var _iterator7 = body[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+          var _node = _step7.value;
 
           if (node === _node) return true;
         }
       } catch (err) {
-        _didIteratorError5 = true;
-        _iteratorError5 = err;
+        _didIteratorError7 = true;
+        _iteratorError7 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-            _iterator5['return']();
+          if (!_iteratorNormalCompletion7 && _iterator7['return']) {
+            _iterator7['return']();
           }
         } finally {
-          if (_didIteratorError5) {
-            throw _iteratorError5;
+          if (_didIteratorError7) {
+            throw _iteratorError7;
           }
         }
       }
